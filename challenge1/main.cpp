@@ -9,7 +9,7 @@ int main() {
     std::function<double(double,double)> f=[](double t,double y){return -t*exp(-y);};
     std::function<double(double)> fex=[](double t){return log(1-t*t/2);};
 
-    // Importing parameters with json
+    // Importing parameters with json //
     Reader r("parameters.json");
     parameters param=r.readParameters_json();
 
