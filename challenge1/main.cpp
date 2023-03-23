@@ -6,17 +6,17 @@
 
 int main() {
 
-    std::function<double(double,double)> f=[](double t,double y){return -t*exp(-y);};
-    std::function<double(double)> fex=[](double t){return log(1-t*t/2);};
-
-    // Importing parameters with json //
+    // Importing parameters with json
     Reader r("parameters.json");
     parameters param=r.readParameters_json();
 
-    const auto &[N,u0,T,theta,k,solverType] = param; 
+    const auto &[N,u0,T,theta,f_str,fex_str,k,solverType] = param; 
+
+    MuparserFun2V f(f_str);
+    MuparserFun1V fex(fex_str);
 
     // Computing numerical solution
-    std::array<std::vector<double>,2> res=ThetaMethod(f,u0,T,N,theta);
+    std::array<std::vector<double>,2> res=ThetaMethod(f,u0,T,N,theta,solverType);
     std::vector<double> resex(res[0].size(),0.);
     
     // Computing analitycal solution 
@@ -24,6 +24,7 @@ int main() {
         resex[i]=fex(res[0][i]); 
     }
 
+    // Filling result.dat
     std::cout << "Result file: result.dat" << std::endl;
     std::ofstream file("result.dat");
 
@@ -40,8 +41,9 @@ int main() {
     for (unsigned int i=0;i<k;i++) {
         steps[i]=pow(2,i+3);
     }
-    std::vector<double> err=ComputeError(f,fex,param,steps);
+    std::vector<double> err=ComputeError(param,steps);
 
+    // Filling error.dat
     std::cout << "Error file: errors.dat" << std::endl;
     std::ofstream filerr("errors.dat");
     
@@ -50,7 +52,7 @@ int main() {
         {
         filerr.setf(std::ios::left, std::ios::adjustfield);
         filerr.width(16);
-        filerr << log2(pow(steps[m],-1)) << "\t\t" << log2(err[m]) << "\t\t" << log2(pow(steps[m],-1)) << "\t\t" << log2(pow(steps[m],-2)) << "\n";
+        filerr << log2(pow(steps[m],-1)) << "\t\t" << log2(err[m]) << "\t\t" << log2(pow(steps[m],-1)) << "\t\t" << log2(pow(steps[m],-2)) << "\n"; // loglog scale
         }
     filerr.close();
     file.close();

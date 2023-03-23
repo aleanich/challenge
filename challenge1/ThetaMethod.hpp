@@ -5,8 +5,7 @@
 #include "basicZeroFun.hpp"
 #include "reader.hpp"
 
-
-
+// Theta method 
 std::array<std::vector<double>,2> ThetaMethod (std::function<double(double,double)> f,double u0,double T,int N,double theta,int SolverType=1) {
 
     std::array<std::vector<double>,2> sol={};
@@ -60,15 +59,8 @@ std::array<std::vector<double>,2> ThetaMethod (std::function<double(double,doubl
     return sol;
 }
 
-// Method for computing inf norm (Type=0) or norm 1(Type=0)
-double sum(std::vector<double> v,int Type=0) {
-    double res=v[0];
-    if(Type==1) {
-        for (auto i=1; i<v.size();i++) {
-        res=res+v[i];
-        }
-        return res;
-    }
+// Function for computing inf norm
+double NormInf(std::vector<double> v) {
     double max=v[0];
     for (auto i=1; i<v.size();i++) {
         if(v[i]>max)
@@ -77,13 +69,17 @@ double sum(std::vector<double> v,int Type=0) {
     return max;
     }
 
-std::vector<double> ComputeError(std::function<double(double,double)> f,std::function<double(double)> fex, parameters param, std::vector<int> steps) {
+std::vector<double> ComputeError(parameters param, std::vector<int> steps) {
 
     std::vector<double> abserr(steps.size(),0.);
 
-    const auto &[N,u0,T,theta,k,solverType] = param;
+    const auto &[N,u0,T,theta,f_str,fex_str,k,solverType] = param;
 
-    std::array<std::vector<double>,2> res=ThetaMethod(f,u0,T, steps[0],theta);
+    MuparserFun2V f(f_str);
+    MuparserFun1V fex(fex_str);
+
+    // Computing k times the solution with different steps
+    std::array<std::vector<double>,2> res=ThetaMethod(f,u0,T, steps[0],theta,solverType);
     std::vector<double> resex(res[0].size(),0.0);
     std::vector<double> err(res[0].size(),0.0);
 
@@ -91,11 +87,11 @@ std::vector<double> ComputeError(std::function<double(double,double)> f,std::fun
         resex[i]=fex(res[0][i]); 
         err[i]=fabs(resex[i]-res[1][i]); 
     }
-    abserr[0]=sum(err);
+    abserr[0]=NormInf(err);
 
     for (unsigned int i=1; i<steps.size();i++) {
 
-        res=ThetaMethod(f,u0,T, steps[i],theta);
+        res=ThetaMethod(f,u0,T, steps[i],theta,solverType);
         resex={};
         err={};
         resex.resize(res[1].size());
@@ -105,7 +101,7 @@ std::vector<double> ComputeError(std::function<double(double,double)> f,std::fun
             resex[i]=fex(res[0][i]); 
             err[i]=fabs(resex[i]-res[1][i]);
         }
-        abserr[i]=sum(err);
+        abserr[i]=NormInf(err);
     }
 
     return abserr;

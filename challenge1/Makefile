@@ -1,6 +1,10 @@
+#! Sostitute here your directory that contains Examples to run the code 
+PACS_ROOT=${HOME}/pacs/pacs-examples
+
 CXX = g++
-CXXFLAGS = -Wall -std=c++23 -I${HOME}/pacs/pacs-examples/Examples/include
-#LDLIBS = -L../Examples/lib 
+CXXFLAGS = -Wall -std=c++23 -I${PACS_ROOT}/Examples/include 
+LDLIBS = -lmuparser
+LDFLAGS = -L${PACS_ROOT}/Examples/lib -Wl,-rpath=${PACS_ROOT}/Examples/lib 
 LINK.o = $(CXX) $(LDFLAGS) $(TARGET_ARCH)
 
 # get all files *.cpp
