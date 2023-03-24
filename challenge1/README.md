@@ -2,7 +2,7 @@
 
 # Theta Method for computing the numerical solution of a Cauchy problem of 1D function #
 
-**Note** In order to run the code on your device you must change the directory to yours that contains /Examples on pacs-examples repository.
+**Note:** In order to run the code on your device you must change the directory to yours that contains /Examples on pacs-examples repository.
 
 Then:
 - command `make` to compile the code
